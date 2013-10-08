@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Krypto</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+  <script src="facebox/facebox.js"></script>
+  <link rel="stylesheet" href="facebox/facebox.css" type="text/css">
+  <link rel="stylesheet" href="css/main.css" type="text/css">
+  <link rel="stylesheet" href="css/start/jquery-ui-1.8.15.custom.css" type="text/css">
+  <script src="main.js"></script>
+  <script src="solver.js"></script>
+  <script>
+    $(document).ready( function($) { $('#solution-input').val(''); var g = newGame('single'); displayGame(g); } );
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Krypto</h1>
+    <nav>
+      <ul>
+        <li><a href="#" onclick="var g = newGame('single'); displayGame(g); $('#solution-input').val(''); addFeedback('', true); $('#ans').html(''); $('#eq').hide(); $('#solution-input').css('border', '1px solid #000'); return false;">New Game</a></li>
+        <li><a href="full-sheet">Full Sheet</a></li>
+        <li><a href="how-to-play" rel="facebox">How To Play</a></li>
+        <li><a href="features" rel="facebox">Features</a></li>
+        <li><a href="stats" rel="facebox">Stats</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section id="game">
+    {% for q in queries %}
+      <p>{{q.input}}</p>
+    {% endfor %}
+    <div id="numbers"></div>
+    <div id="target-container">Target Number: <span id="target-number"></span></div>
+
+    <form id="solution" onsubmit="submitSolution(); return false;">
+      <p>
+        <input id="solution-input" type="text" placeholder="Type your solution here..." onkeyup="validateSolution(this.value, true);" onclick="$(this).css('color','#000' );" onblur="if( $(this).val() == '' ) $(this).css('color','#808080' );">
+        <span id="eq">=</span>
+        <span id="ans"></span>
+      </p>
+
+      <ul id="actions">
+        <li><input type="submit" value="Solve"></li>
+        <li><input type="button" value="Find Solution" onclick="findSolution(numbers, $('#target-number').html());"></li>
+        <li>
+          <input type="button" value="Simulate" onclick="simulate($('#games-input').val()); return false;">
+          <input type="text" value="10" id="games-input"> games
+        </li>
+      </ul>
+    </form>
+    
+    <ul id="feedback"></ul>
+  </section>
+</body>
+</html>

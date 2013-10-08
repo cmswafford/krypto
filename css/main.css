@@ -1,0 +1,151 @@
+div, h1, h2, h3, h4, h5, h6, ul, li, dl, dt, dd, p, textarea, input, fieldset, legend, form, body { margin: 0; padding: 0; }
+
+ul > li {
+  list-style: none;
+}
+
+div#numbers ul > li { float: left; list-style: none; margin-right: 20px; }
+
+form#solution { margin-top: 20px; clear: both; }
+
+li.used { color: #6ea045; }
+li.required { color: #ff0000; }
+
+.correct { color: #6ea045; }
+.incorrect { color: #ff0000; }
+#eq { display: none; }
+
+input[type="text"] { 
+  border: 1px solid #000d96;
+  padding: 2px 5px;
+  width: 390px;
+}
+
+input[placeholder=value] { color: #808080; }
+
+input[type="text"].correct { border: 1px solid #6ea045; color: #000; }
+
+input[type="text"].incorrect { border: 1px solid #ff0000; color: #000; }
+
+h1 {
+  background: #000d96;
+  color: #f7f7f7;
+  font-family: sans-serif;
+  padding: 20px;
+  text-shadow: 2px 2px 2px #ccc;
+}
+
+nav {
+  background-color: #6ea045;
+  height: 30px;
+  overflow: auto;
+}
+
+nav ul {
+  margin-left: 10px;
+  position: relative;
+}
+
+nav ul > li {
+  float: left;
+  list-style: none;
+}
+
+nav a {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  color: #fff;
+  display: block;
+  font-family: sans-serif;
+  font-weight: bold;
+  height: 100%;
+  padding: 5px 20px;
+  text-decoration: none;
+}
+
+nav a:hover {
+  background-color: #86b85c;
+  text-decoration: underline;
+}
+
+section#game {
+  clear: both;
+  padding: 20px;
+}
+
+div#numbers ul {
+  overflow: auto;
+}
+
+div#target-container {
+  margin-top: 20px;
+  clear: both;
+}
+
+#ans {
+  font-weight: bold;
+}
+
+ul#actions {
+  overflow: auto;
+}
+
+ul#actions > li {
+  float: left;
+  margin-right: 20px;
+  margin-top: 10px;
+}
+
+#feedback {
+  font-size: 13px;
+  clear: both;
+  border: 1px solid #000d96;
+  height: 130px;
+  margin-top: 20px;
+  width: 380px;
+  padding: 10px;
+  overflow: auto;
+}
+
+
+/* Popup sections */
+section.subpage-popup {
+  width: 450px;
+}
+
+section.subpage-popup h2 {
+  font-family: sans-serif;
+  color: #000d96;
+  border-bottom: 3px solid #6ea045;
+}
+section.subpage-popup h3 {
+  border-bottom: 3px solid #6ea045;
+  color: #000d96;
+  font-family: sans-serif;
+  margin-top: 15px;
+  width: 70px;
+}
+
+section.subpage-popup p,
+section.subpage-popup li {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+ul#tips > li {
+  list-style: none;
+}
+
+/* Stats */
+form#simulator {
+  margin-top: 20px;
+}
+#games-input {
+  width: 30px;
+}
+
+#actions input {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px;
+}

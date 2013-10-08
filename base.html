@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Krypto{% endblock title %}</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+  <script src="facebox/facebox.js"></script>
+  <link rel="stylesheet" href="facebox/facebox.css" type="text/css">
+  <link rel="stylesheet" href="css/main.css" type="text/css">
+  <link rel="stylesheet" href="css/start/jquery-ui-1.8.15.custom.css" type="text/css">
+  <script src="main.js"></script>
+  <!--<script src="solver.js"></script>-->
+  {% block scripts %}{% endblock scripts %}
+</head> 
+<body>
+  {% block header %}
+  <header>
+    <h1>Krypto</h1>
+    <nav>
+      <ul>
+        <li><a href="single-game">Single Game</a></li>
+        <li><a href="full-sheet">Full Sheet</a></li>
+        <li><a href="how-to-play" rel="facebox">How To Play</a></li>
+        <li><a href="stats" rel="facebox">Stats</a></li>
+      </ul>
+    </nav>
+  </header>
+  {% endblock header %}
+
+  {% block body %}
+  {% endblock body %}
+
+  {% block feedback %}
+  <ul id="feedback"></ul>
+  {% endblock feedback %}
+</body>
+</html>

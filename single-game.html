@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Single Game{% endblock title %}
+
+{% block scripts %}
+  <script src="single-game.js"></script>
+  <script src="krypto.js"></script>
+  <script>
+    var worker = null;
+    $(document).ready( function($) {
+      var n = [{{numbersCSV}}];
+      var t = {{target}};
+      var g = new KryptoGame(n, t);
+      displaySingleGame(g);
+
+      // Initialize facebox
+      $('a[rel*=facebox]').facebox()
+
+      // Make the buttons shiney
+      $('input[type="submit"], input[type="button"]').each( function() { $(this).button(); } );
+
+      // Preload ajax-loader.gif
+      if( document.images ) {
+        var img = new Image();
+        img.src = 'ajax-loader.gif';
+      }
+
+      worker = new Worker('doWork.js');
+
+      function handleWorkerResponse( data ) {
+        var solutions = data.solutions;
+        var target = data.target;
+
+        $('img.ajax-loader').remove();
+        $('#target-'+data.target+' input[type="text"]').val(solutions[0]);
+
+        if( solutions.length > 0 )
+          addFeedback( 'Found a valid solution! ' + solutions[0] + ' = ' + target );
+        else
+          addFeedback( 'No solution found for ' + target );
+
+        console.log('Worker said: ', data )
+        $('#solution-input').val( solutions[0] );
+      }
+
+      worker.addEventListener('message', function(e) { handleWorkerResponse( e.data ); }, false);
+    } );
+  </script>
+{% endblock scripts %}
+
+{% block body %}
+  <section id="game">
+    <ul id="numbers">
+      {% for n in numbers %}
+      <li id="number-n">n</li>
+      {% endfor %}
+    </ul>
+    <div id="target-container">Target Number: <span id="target-number">{{target}}</span></div>
+
+    <form id="solution" onsubmit="var g = new KryptoGame([{{numbers}}], {{target}}); submitSolution(g); return false;">
+      <p>
+        <input id="solution-input" type="text" placeholder="Type your solution here..."
+          onkeyup="var g = new KryptoGame([{{numbersCSV}}], {{target}}); validateSolution(g, this.value, true);"
+          onclick="$(this).css('color','#000' );"
+          onblur="if( $(this).val() == '' ) $(this).css('color','#808080' );">
+        <span id="eq">=</span>
+        <span id="ans"></span>
+      </p>
+
+      <ul id="actions">
+        <li><input type="submit" value="Solve"></li>
+        <li>
+          <input type="button" value="Find Solution"
+          onclick="var n = [];
+            $('#numbers li').each(function(){ n.push($(this).text()); });
+            findSolution(n, $('#target-number').html());">
+        </li>
+        <!--
+        <li>
+          <input type="button" value="Simulate" onclick="simulate($('#games-input').val()); return false;">
+          <input type="text" value="10" id="games-input"> games
+        </li>
+        -->
+      </ul>
+    </form>
+  <section>
+{% endblock body %}
