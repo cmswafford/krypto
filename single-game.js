@@ -23,14 +23,15 @@ var acceptSolution = function( kryptoGame )
   $('#eq').show();
   $('#ans').html(kryptoGame.target);
   $('#ans').attr('class','correct');
-  addFeedback( 'FTW!!! Good job!', true);
+  addFeedback( 'Good job!', true);
   saveSolution(kryptoGame);
 }
 
 var saveSolution = function(kryptoGame) {
-  data = {'target': kryptoGame.target,
-          'numbers': kryptoGame.numbers,
-          'solution': $('#solution-input').get(0).value
+  data = {'target': kryptoGame.target
+         ,'numbers': kryptoGame.numbers
+         ,'solution': $('#solution-input').get(0).value
+         ,'user': $('#solution-author').get(0).value
   }
   $.post('save-solution', data);
 }
@@ -82,9 +83,9 @@ var validateSolution = function(kryptoGame, solution, live)
     else if( numTest.test(solution.charAt(i-1)) )
       t += ' ';
   }
-  solution.replace('  ',' '); solution.replace('  ',' ');
+  solution.replace('  ',' ');
+  solution.replace('  ',' ');
 
-  var numbers = kryptoGame.numbers
   var numbers_used = t.split(' ');
   var u = [];
   // Go through the numbers used and put valid ones in the var u
@@ -100,14 +101,23 @@ var validateSolution = function(kryptoGame, solution, live)
     {
       numbers_used[i] = parseInt(numbers_used[i]);
     }
-    if( $.inArray( numbers_used[i], numbers ) >= 0 )
+    if( $.inArray( numbers_used[i], kryptoGame.numbers ) >= 0 )
     {
       u.push(numbers_used[i]);
     }
+    else
+    {
+      re = false;
+    }
+  }
+
+  if( re == false )
+  {
+    addFeedback('Check that your solution uses the numbers allowed once and only once');
   }
 
   // Check which numbers were used and not used and style them accordingly
-  for( i in numbers )
+  for( i in kryptoGame.numbers )
   {
     if( $.inArray( numbers[i], u ) >= 0 )
     {
@@ -141,7 +151,6 @@ var validateSolution = function(kryptoGame, solution, live)
 var checkSolution = function(kryptoGame, solution)
 {
   if( !validateSolution(kryptoGame, solution) ) {
-    console.log('validateSolution returned false');
     return false;
   }
   var data = { input: solution
@@ -174,12 +183,12 @@ var hCheckSolution = function(data) {
   solutionResult == target ? acceptSolution(k) : rejectSolution(k);
 };
 
-    var findSolution = function( numbers, target ) {
-      // Set loader
-      if( $('img.ajax-loader').length == 0 ) {
-        $('#feedback').append('<img class="ajax-loader" src="ajax-loader.gif" alt="loading">');
-      }
+var findSolution = function( numbers, target ) {
+  // Set loader
+  if( $('img.ajax-loader').length == 0 ) {
+    $('#feedback').append('<img class="ajax-loader" src="ajax-loader.gif" alt="loading">');
+  }
 
-      // Find a solution
-      worker.postMessage( { 'numbers': numbers, 'target': target, 'find_all_solutions': false } ); // Send data to our worker.
-    }
+  // Find a solution
+  worker.postMessage( { 'numbers': numbers, 'target': target, 'find_all_solutions': false } ); // Send data to our worker.
+}

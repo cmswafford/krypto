@@ -1,9 +1,10 @@
 self.addEventListener('message', function(e) {
   var solutions = [];
   var current_permutation;
-  var i = 120;
+  var i = 120; // 5! because there are 5 numbers
   var tmp, r = [];
 
+  // Permute through all 120 different arrangements of a set of 5 numbers
   current_permutation = e.data.numbers;
   do {
     r.push( current_permutation );
@@ -21,6 +22,9 @@ function merge(a, b) {
   return a;
 }
 
+// Take the numbers in a given order and test all possible algebraic solutions
+// by creating equations using +, -, *, and / in each of the possible 4 slots
+// between each of the 5 numbers.
 var testAlgebra = function(numbers, target, find_all_solutions) {
   if( arguments.length < 3 )
     find_all_solutions = false;

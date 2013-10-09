@@ -16,6 +16,7 @@ import urllib
 import urllib2
 import webapp2
 import wsgiref.handlers
+from webapp2_extras import sessions
 
 WOLFRAM_ALPHA_APPID = '6RPTAL-A95UL577RU' #Q9868R-UHTWU2L6K2 (deprecated)
 
@@ -39,11 +40,61 @@ class Solutions(db.Model):
   user = db.StringProperty()
   date = db.DateTimeProperty(auto_now_add=True)
 
+# Taken from the webapp2 extrta session example
+class BaseHandler(webapp2.RequestHandler):              
+    def dispatch(self): # override dispatch
+        # Get a session store for this request
+        self.session_store = sessions.get_store(request=self.request)
 
-class FullSheet(webapp2.RequestHandler):
+        try:
+            # Dispatch the request
+            webapp2.RequestHandler.dispatch(self) # dispatch the main handler
+        finally:
+            # Save all sessions
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        # Returns a session using the default cookie key
+        return self.session_store.get_session()
+
+class FullSheet(BaseHandler):
   def get(self):
-    w = WolframQueries.all().fetch(100)
-    self.response.out.write( template.render('full-sheet.html',{'queries':w}) )
+    # If no game parameters have been supplied, generate a random game"""
+    if not self.request.get('numbers'):
+      game_parameters = SingleGame().generateGame()
+      n = ','.join([str(s) for s in game_parameters['numbers']])
+      self.redirect('/full-sheet?numbers=%s' % (n))
+      return
+
+    # Set author
+    author = 'Your name...'
+    if self.session.get('user'):
+      author = self.session.get('user')
+
+    # Generate a game to get 5 random numbers
+    numbers = self.getNumbers()
+    context = { 'numbers': numbers
+               ,'author': author
+               ,'target_range': range(30, 51)
+    }
+
+    self.response.out.write( template.render('full-sheet.html', context) )
+
+  def getNumbers(self):
+    givenNumbers = [ int(n) for n in self.request.get('numbers').split(',') ]
+    numbers = []
+    for n in givenNumbers:
+      if n >= 1 and n <= 20 and n not in numbers:
+        numbers.append(n)
+        pass
+      else:
+        logging.error('%i is not a unique integer between 1 and 20' % n)
+
+    if len(numbers) != 5:
+      logging.error('Invalid list of numbers: %s' % self.request.get('numbers'))
+    else:  
+      return numbers
 
   def post(self):
     solutions = self.request.POST.getall('solution')
@@ -56,7 +107,7 @@ class HowToPlay(webapp2.RequestHandler):
   def get(self):
     self.response.out.write( template.render('how-to-play.html',{}) )
 
-class SingleGame(webapp2.RequestHandler):
+class SingleGame(BaseHandler):
   def generateGame(self):
     game = {'numbers': [], 'target': 0}
     n = []
@@ -66,7 +117,6 @@ class SingleGame(webapp2.RequestHandler):
         if x not in n:
           n.append(x)
           break
-        logging.info('x already in n, retry')
     game['numbers'] = sorted(n)
     game['target'] = random.randint(30, 50)
     return game
@@ -75,15 +125,19 @@ class SingleGame(webapp2.RequestHandler):
     # If no game parameters have been supplied, generate a random game"""
     if not self.request.get('numbers'):
       game_parameters = self.generateGame()
-      logging.info(game_parameters['numbers'])
       n = ','.join([str(s) for s in game_parameters['numbers']])
       self.redirect('/single-game?numbers=%s&target=%s' % (n, game_parameters['target']))
       return
 
     numbers = self.getNumbers()
     target = self.getTarget()
+    author = 'Your name...'
+    if self.session.get('user'):
+      author = self.session.get('user')
+
     context = {'numbers': numbers
               ,'numbersCSV': ','.join([str(n) for n in numbers])
+              ,'author': author
               ,'target': self.request.get('target')
     }
     self.response.out.write(template.render('single-game.html', context))
@@ -112,7 +166,7 @@ class SingleGame(webapp2.RequestHandler):
     return 0
 
 
-class SaveSolution(webapp2.RequestHandler):
+class SaveSolution(BaseHandler):
   def checkUnique(self, numbers, target, solution):
     """Returns True if the solution is in the database. Otherwise False."""
     where = """where number0 = :n0
@@ -161,7 +215,13 @@ class SaveSolution(webapp2.RequestHandler):
 
     # Strip all whitespace from user 
     user = ''.join(self.request.get('user').split())
-    user = 'Clifton'
+    if not user:
+      if self.session['user']:
+        user = self.session['user']
+      else:
+        user = 'Anonymous'
+    else:
+      self.session['user'] = user
 
     # If this solution hasn't been added to the database, add it
     if self.checkUnique(numbers, target, solution):
@@ -176,6 +236,9 @@ class SaveSolution(webapp2.RequestHandler):
                           ,user = user
       )
       solution.put()
+
+      #session = get_current_session()
+      #session.set('user', user)
     else:
       logging.error('This solution was already submitted')
 
@@ -220,7 +283,7 @@ class WolframClient(webapp2.RequestHandler):
 
       # Save object
       w.put()
-
+ 
     # Write data to output
     self.response.headers['Content-Type'] = 'text/xml'
     self.response.out.write(w.response)
@@ -246,6 +309,12 @@ class WolframClient(webapp2.RequestHandler):
     else:
       return w
 
+# Config options
+config = {}
+config['webapp2_extras.sessions'] = {
+    'secret_key': 'cryp7o!krypt0',
+}
+
 # Configure app routes
 app = webapp2.WSGIApplication([('/', SingleGame)
                              ,('/full-sheet', FullSheet)
@@ -255,4 +324,7 @@ app = webapp2.WSGIApplication([('/', SingleGame)
                              ,('/single-game', SingleGame)
                              ,('/stats', Stats)
                              ,('/wolfram-client', WolframClient)
-                             ], debug=True)
+                             ]
+                             ,config=config
+                             ,debug=True
+)

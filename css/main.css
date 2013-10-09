@@ -4,9 +4,13 @@ ul > li {
   list-style: none;
 }
 
-div#numbers ul > li { float: left; list-style: none; margin-right: 20px; }
-
 form#solution { margin-top: 20px; clear: both; }
+
+#solution-author {
+  margin-top: 10px;
+  display: block;
+  width: 200px;
+}
 
 li.used { color: #6ea045; }
 li.required { color: #ff0000; }
@@ -73,8 +77,14 @@ section#game {
   padding: 20px;
 }
 
-div#numbers ul {
+#numbers {
   overflow: auto;
+}
+
+#numbers > li {
+  float: left;
+  list-style: none;
+  margin-right: 20px;
 }
 
 div#target-container {
@@ -145,6 +155,12 @@ form#simulator {
 }
 
 #actions input {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px;
+}
+
+input[type='button'] {
   font-size: 12px;
   font-weight: bold;
   padding: 3px;
